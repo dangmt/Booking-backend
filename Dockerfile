@@ -1,5 +1,5 @@
 # Sử dụng hình ảnh Maven chính thức để xây dựng ứng dụng trong giai đoạn build
-FROM maven:3.9.6-openjdk-20 as build
+FROM maven:3.8.4-openjdk-11-slim as build
 WORKDIR /app
 COPY src ./src
 COPY pom.xml .
