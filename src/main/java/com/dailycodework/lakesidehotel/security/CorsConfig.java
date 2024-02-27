@@ -17,12 +17,15 @@ public class CorsConfig {
     private static final Long MAX_AGE = 3600L;
     @Value("${CORS_ALLOWED_ORIGIN}")
     private String allowedOrigin;
+    @Value("${CORS_ALLOWED_ORIGIN1}")
+    private String allowedOrigin1;
 
     @Bean
     public CorsFilter corsFilter() {
         CorsConfiguration config = new CorsConfiguration();
         config.setAllowCredentials(true); // Cho phép credentials
         config.addAllowedOrigin(allowedOrigin); // Cho phép Origin này
+        config.addAllowedOrigin(allowedOrigin1); // Cho phép Origin này
         config.setAllowedHeaders(Arrays.asList(
                 HttpHeaders.AUTHORIZATION,
                 HttpHeaders.CONTENT_TYPE,
