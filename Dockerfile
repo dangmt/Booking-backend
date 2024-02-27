@@ -1,5 +1,5 @@
 # Giai đoạn 1: Xây dựng ứng dụng sử dụng Maven
-FROM maven:3.8.6-jdk-17-slim AS MAVEN_TOOL_CHAIN
+FROM maven:3.8.6-openjdk-17-slim AS MAVEN_TOOL_CHAIN
 COPY pom.xml /tmp/
 COPY src /tmp/src/
 WORKDIR /tmp/
