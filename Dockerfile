@@ -1,5 +1,5 @@
 # Sử dụng một base image chứa Java Runtime Environment (JRE)
-FROM openjdk:11-jre-slim as builder
+FROM openjdk:17-jre-slim as builder
 
 # Thiết lập thư mục làm việc trong container
 WORKDIR application
@@ -17,7 +17,7 @@ RUN ./mvnw clean package
 RUN java -Djarmode=layertools -jar target/*.jar extract
 
 # Tạo một image mới không chứa môi trường xây dựng
-FROM openjdk:11-jre-slim
+FROM openjdk:17-jre-slim
 
 WORKDIR application
 
