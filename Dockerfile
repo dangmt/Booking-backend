@@ -1,12 +1,30 @@
-# Bước 1: Xây dựng ứng dụng Spring Boot sử dụng maven
-FROM maven:4.0-openjdk-17 AS build
-COPY src /home/app/src
-COPY pom.xml /home/app
-RUN mvn -f /home/app/pom.xml clean package
+# Sử dụng một base image chứa Java Runtime Environment (JRE)
+FROM openjdk:11-jre-slim as builder
 
-# Bước 2: Chạy ứng dụng sử dụng JRE
-FROM openjdk:17
-COPY --from=build /home/app/target/*.jar /usr/local/lib/spring-boot-app.jar
-EXPOSE 9192
-ENTRYPOINT ["java","-jar","/usr/local/lib/spring-boot-app.jar"]
+# Thiết lập thư mục làm việc trong container
+WORKDIR application
 
+# Sao chép mã nguồn và file cấu hình vào thư mục làm việc
+COPY mvnw .
+COPY .mvn .mvn
+COPY pom.xml .
+COPY src src
+
+# Xây dựng ứng dụng bằng Maven Wrapper
+RUN ./mvnw clean package
+
+# Gỡ bỏ các phụ thuộc không cần thiết, chỉ giữ lại file jar
+RUN java -Djarmode=layertools -jar target/*.jar extract
+
+# Tạo một image mới không chứa môi trường xây dựng
+FROM openjdk:11-jre-slim
+
+WORKDIR application
+
+COPY --from=builder application/dependencies/ ./
+COPY --from=builder application/spring-boot-loader/ ./
+COPY --from=builder application/snapshot-dependencies/ ./
+COPY --from=builder application/application/ ./
+
+# Chỉ định lệnh để chạy ứng dụng
+ENTRYPOINT ["java", "org.springframework.boot.loader.JarLauncher"]
