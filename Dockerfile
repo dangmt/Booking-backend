@@ -1,31 +1,6 @@
-# Sử dụng một base image chứa Java Runtime Environment (JRE)
-FROM openjdk:20-jdk-nanoserver AS builder
-
-# Thiết lập thư mục làm việc trong container
-WORKDIR application
-
-# Sao chép mã nguồn và file cấu hình vào thư mục làm việc
-COPY mvnw .
-COPY .mvn .mvn
-COPY pom.xml .
-COPY src src
-
-# Xây dựng ứng dụng bằng Maven Wrapper
-RUN ./mvnw clean package
-
-# Gỡ bỏ các phụ thuộc không cần thiết, chỉ giữ lại file jar
-RUN java -Djarmode=layertools -jar target/*.jar extract
-
-# Tạo một image mới không chứa môi trường xây dựng
-FROM openjdk:20-jdk-nanoserver
-
-
-WORKDIR application
-
-COPY --from=builder application/dependencies/ ./
-COPY --from=builder application/spring-boot-loader/ ./
-COPY --from=builder application/snapshot-dependencies/ ./
-COPY --from=builder application/application/ ./
-
-# Chỉ định lệnh để chạy ứng dụng
-ENTRYPOINT ["java", "org.springframework.boot.loader.JarLauncher"]
+FROM maven:3.8.6-jdk-8-slim AS MAVEN_TOOL_CHAIN
+COPY pom.xml /tmp/
+COPY src /tmp/src/WORKDIR /tmp/
+RUN mvn package FROM openjdk:8-jdk-alpine
+COPY --from=MAVEN_TOOL_CHAIN  /tmp/target/*.jar app.jar
+ENTRYPOINT ["java","-jar","/app.jar"]
