@@ -20,7 +20,7 @@ RUN chmod +x ./mvnw
 RUN ./mvnw clean package -DskipTests
 
 # Chọn hình ảnh base mới cho việc chạy ứng dụng
-FROM openjdk:17-jre-slim
+FROM eclipse-temurin:17-jre-alpine
 
 # Sao chép tệp JAR từ bước build sang bước này
 COPY --from=build /app/target/*.jar app.jar
